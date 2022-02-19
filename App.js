@@ -14,7 +14,7 @@ class SearchBody extends React.Component {
         super(props);
         this.state = {
             searchText: '',
-            authText: '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',  //Remember to remove this
+            authText: '',
             searchResults : [],
             searchDebounceTimer: null,
         }
@@ -62,6 +62,7 @@ class SearchBody extends React.Component {
             <div>
                 <span>Generate GH Auth Token To Increase API Rate Limit</span> <a href='https://github.com/settings/tokens/new?scopes=read:user' target="_blank" rel="noreferrer noopener"> Here </a>
                 <AuthBar authText={this.state.authText} onAuthUpdate={this.handleAuthUpdate} />
+                <br/><br/>
                 <SearchBar searchText={this.state.searchText} onSearch={this.handleSearch} />
                 <SearchResultsDisplay searchResults={this.state.searchResults} />
             </div>
@@ -84,6 +85,7 @@ class AuthBar extends React.Component {
             <form>
                 <input
                 type="text"
+                className='textBar'
                 placeholder="Enter GH OAuth Token"
                 value={this.props.authText}
                 onChange={this.handleAuthUpdate}
@@ -108,6 +110,7 @@ class SearchBar extends React.Component {
             <form>
                 <input
                 type="text"
+                className='textBar'
                 placeholder="Search For User"
                 value={this.props.searchText}
                 onChange={this.handleSearch}

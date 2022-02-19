@@ -14,34 +14,38 @@ class SearchBody extends React.Component {
         super(props);
         this.state = {
             searchText: '',
-            authText: '',
+            authText: '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',  //Remember to remove this
             searchResults : [],
+            searchDebounceTimer: null,
         }
 
         this.handleSearch = this.handleSearch.bind(this);
         this.handleAuthUpdate = this.handleAuthUpdate.bind(this);
+        this.searchRequest = this.searchRequest.bind(this);
 
         this.octokit = new Octokit();
     };
 
     handleSearch( searchText ){
+        
+        clearTimeout( this.state.searchDebounceTimer );
+
         this.setState({
-            searchText: searchText
+            searchText: searchText,
+            searchDebounceTimer: setTimeout( this.searchRequest, 1000 )
         });
 
-        this.searchRequest( searchText );
     }
 
-    async searchRequest( searchText ){
+    async searchRequest( ){
+        if( this.state.searchText === '' ) return; 
         await this.octokit.request('GET /search/users', {
-            q: searchText +'sort:followers-desc'
+            q: this.state.searchText +'sort:followers-desc'
         }).then( result =>{ 
             
             this.setState({
                 searchResults : result.data.items,
             });
-
-            console.log(result.data.items);
         });
     }
 
@@ -56,7 +60,7 @@ class SearchBody extends React.Component {
     render() {
         return (
             <div>
-                <span>If GraphQL Searches Desired, Generate GH Auth Token </span> <a href='https://github.com/settings/tokens/new?scopes=read:user' target="_blank" rel="noreferrer noopener"> Here </a>
+                <span>Generate GH Auth Token To Increase API Rate Limit</span> <a href='https://github.com/settings/tokens/new?scopes=read:user' target="_blank" rel="noreferrer noopener"> Here </a>
                 <AuthBar authText={this.state.authText} onAuthUpdate={this.handleAuthUpdate} />
                 <SearchBar searchText={this.state.searchText} onSearch={this.handleSearch} />
                 <SearchResultsDisplay searchResults={this.state.searchResults} />
@@ -128,27 +132,35 @@ class SearchResultsDisplay extends React.Component {
         }
 
         return (
-        <ul>
-            {searchResultsList}
-        </ul>
+            <table>
+            <tbody>{searchResultsList}</tbody>
+          </table>
         );
     }
 }
 
 class SearchResultListItem extends React.Component {
-  render() {
+  
+    render() {
 
-      let searchResult=this.props.searchResult;
+    let searchResult=this.props.searchResult;
 
-      return (
-          <li>
-              <a href={searchResult.html_url} target="_blank" rel="noreferrer noopener">
+    return (
+        <tr>
+            <td>
+                <a href={searchResult.html_url} target="_blank" rel="noreferrer noopener">
+                    <img className='avatar' src={searchResult.avatar_url} />
+                </a>
+            </td>
+            <td>
+                <a href={searchResult.html_url} target="_blank" rel="noreferrer noopener">
+                    <span className="searchResultLogin" >{searchResult.login}</span>
+                </a>
+            </td>
+        </tr>
 
-                  <img src={searchResult.avatar_url} />
-                  <span className="searchResultName" >{searchResult.name}</span>
-                  <span className="searchResultLogin" >{searchResult.login}</span>
-              </a>
-          </li>
+
+          
       );
   }
 }

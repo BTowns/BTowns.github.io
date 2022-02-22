@@ -60,14 +60,26 @@ class SearchBody extends React.Component {
     render() {
         return (
             <div>
-                <span>Generate GH Auth Token To Increase API Rate Limit</span> <a href='https://github.com/settings/tokens/new?scopes=read:user' target="_blank" rel="noreferrer noopener"> Here </a>
-                <AuthBar authText={this.state.authText} onAuthUpdate={this.handleAuthUpdate} />
-                <br/><br/>
-                <SearchBar searchText={this.state.searchText} onSearch={this.handleSearch} />
+                <SearchPane authText={this.state.authText} onAuthUpdate={this.handleAuthUpdate} searchText={this.state.searchText} onSearch={this.handleSearch} />
                 <SearchResultsDisplay searchResults={this.state.searchResults} />
             </div>
         );
     }
+}
+
+class SearchPane extends React.Component {
+
+    render() {
+        return (
+            <div className='searchPane'>
+                <span>Generate GH Auth Token To </span> <br /> <span> Increase API Rate Limit</span> <a href='https://github.com/settings/tokens/new?scopes=read:user' target="_blank" rel="noreferrer noopener"> Here </a>
+                <AuthBar authText={this.props.authText} onAuthUpdate={this.props.onAuthUpdate} />
+                <br/><br/>
+                <SearchBar searchText={this.props.searchText} onSearch={this.props.onSearch} />
+            </div>
+        );
+    }
+
 }
 
 class AuthBar extends React.Component {
@@ -135,7 +147,7 @@ class SearchResultsDisplay extends React.Component {
         }
 
         return (
-            <table>
+            <table className='searchResults' >
             <tbody>{searchResultsList}</tbody>
           </table>
         );
@@ -152,7 +164,7 @@ class SearchResultListItem extends React.Component {
         <tr>
             <td>
                 <a href={searchResult.html_url} target="_blank" rel="noreferrer noopener">
-                    <img className='avatar' src={searchResult.avatar_url} />
+                    <img className='avatar' src={searchResult.avatar_url} alt={searchResult.login} />
                 </a>
             </td>
             <td>

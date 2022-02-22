@@ -17,22 +17,24 @@ class SearchBody extends React.Component {
             authText: '',
             searchResults : [],
             searchDebounceTimer: null,
+            previousSearches : [],
         }
 
         this.handleSearch = this.handleSearch.bind(this);
         this.handleAuthUpdate = this.handleAuthUpdate.bind(this);
         this.searchRequest = this.searchRequest.bind(this);
+        this.handlePrevSearch = this.handlePrevSearch.bind(this);
 
         this.octokit = new Octokit();
     };
 
-    handleSearch( searchText ){
+    handleSearch( searchText, timeout = 1000 ){
         
         clearTimeout( this.state.searchDebounceTimer );
 
         this.setState({
             searchText: searchText,
-            searchDebounceTimer: setTimeout( this.searchRequest, 1000 )
+            searchDebounceTimer: setTimeout( this.searchRequest, timeout )
         });
 
     }
@@ -43,9 +45,18 @@ class SearchBody extends React.Component {
             q: this.state.searchText +'sort:followers-desc'
         }).then( result =>{ 
             
-            this.setState({
-                searchResults : result.data.items,
-            });
+            if( !this.state.previousSearches.includes( this.state.searchText ) ){
+                this.setState({
+                    searchResults : result.data.items,
+                    previousSearches : [...this.state.previousSearches, this.state.searchText]
+                });
+            }
+            else{
+                this.setState({
+                    searchResults : result.data.items,
+                });
+            }
+
         });
     }
 
@@ -57,10 +68,21 @@ class SearchBody extends React.Component {
         this.octokit.auth = authText;
     }
 
+    handlePrevSearch( prevText ){
+        this.handleSearch( prevText, 100 );
+    }
+
     render() {
         return (
             <div>
-                <SearchPane authText={this.state.authText} onAuthUpdate={this.handleAuthUpdate} searchText={this.state.searchText} onSearch={this.handleSearch} />
+                <SearchPane 
+                    authText={this.state.authText} 
+                    onAuthUpdate={this.handleAuthUpdate} 
+                    searchText={this.state.searchText} 
+                    onSearch={this.handleSearch} 
+                    previousSearches={this.state.previousSearches}
+                    onPrevSearch={this.handlePrevSearch}
+                />
                 <SearchResultsDisplay searchResults={this.state.searchResults} />
             </div>
         );
@@ -72,10 +94,11 @@ class SearchPane extends React.Component {
     render() {
         return (
             <div className='searchPane'>
-                <span>Generate GH Auth Token To </span> <br /> <span> Increase API Rate Limit</span> <a href='https://github.com/settings/tokens/new?scopes=read:user' target="_blank" rel="noreferrer noopener"> Here </a>
                 <AuthBar authText={this.props.authText} onAuthUpdate={this.props.onAuthUpdate} />
                 <br/><br/>
                 <SearchBar searchText={this.props.searchText} onSearch={this.props.onSearch} />
+                <br />
+                <PrevSearches previousSearches={this.props.previousSearches} onPrevSearch={this.props.onPrevSearch} />
             </div>
         );
     }
@@ -94,15 +117,18 @@ class AuthBar extends React.Component {
   
     render() {
         return (
-            <form>
-                <input
-                type="text"
-                className='textBar'
-                placeholder="Enter GH OAuth Token"
-                value={this.props.authText}
-                onChange={this.handleAuthUpdate}
-                />
-            </form>
+            <div>
+                <span>Generate GH Auth Token To </span> <br /> <span> Increase API Rate Limit</span> <a href='https://github.com/settings/tokens/new?scopes=read:user' target="_blank" rel="noreferrer noopener"> Here </a>
+                <form>
+                    <input
+                    type="text"
+                    className='textBar'
+                    placeholder="Enter GH OAuth Token"
+                    value={this.props.authText}
+                    onChange={this.handleAuthUpdate}
+                    />
+                </form>
+            </div>
         );
     }
 }
@@ -132,6 +158,35 @@ class SearchBar extends React.Component {
     }
 }
 
+class PrevSearches extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handlePrevSearch = this.handlePrevSearch.bind(this);
+    }
+    
+    handlePrevSearch(e) {
+        this.props.onPrevSearch(e.target.innerText);
+    }
+  
+    render() {
+
+        let prevSearchList = [];
+
+        this.props.previousSearches.forEach( (prevSearch) =>{
+            prevSearchList.push( <li onClick={this.handlePrevSearch}>{prevSearch}</li> )
+        });
+
+        return (
+            <div>
+                <span>Previous Searches</span>
+                <ul>
+                    {prevSearchList}
+                </ul>
+            </div>
+        );
+    }
+}
+
 class SearchResultsDisplay extends React.Component {
     render() {
 
@@ -141,7 +196,7 @@ class SearchResultsDisplay extends React.Component {
 
             this.props.searchResults.forEach( (searchResult) => {
                 searchResultsList.push(
-                    < SearchResultListItem key={searchResult.id} searchResult={searchResult} />
+                    < SearchResult key={searchResult.id} searchResult={searchResult} />
                 )
             });
         }
@@ -154,7 +209,7 @@ class SearchResultsDisplay extends React.Component {
     }
 }
 
-class SearchResultListItem extends React.Component {
+class SearchResult extends React.Component {
   
     render() {
 

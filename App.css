@@ -37,3 +37,20 @@ span{
 .searchPane{
     position: fixed;
 }
+
+ul {
+    list-style-type: none;
+    margin: 1px;
+    color:#c9d1d9;
+}
+
+li{
+    margin: 8px 0 8px 0;
+    cursor: pointer;
+    width: auto;
+    background-color: #30363d;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    box-shadow: 0 0 transparent;
+    padding-left: 8px;
+}

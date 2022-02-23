@@ -32,10 +32,19 @@ class SearchBody extends React.Component {
         
         clearTimeout( this.state.searchDebounceTimer );
 
-        this.setState({
-            searchText: searchText,
-            searchDebounceTimer: setTimeout( this.searchRequest, timeout )
-        });
+        //If it's a new search term and not just pagination, lets set the page back to 1
+        if( this.state.searchText != searchText ){
+            this.setState({
+                searchText: searchText,
+                searchPage: 1,
+                searchDebounceTimer: setTimeout( this.searchRequest, timeout )
+            });
+        }
+        else{
+            this.setState({
+                searchDebounceTimer: setTimeout( this.searchRequest, timeout )
+            });
+        }
 
     }
 
@@ -74,8 +83,6 @@ class SearchBody extends React.Component {
     }
 
     handlePagination( paginatorTarget ){
-
-        console.log(paginatorTarget);
 
         let pageVal = this.state.searchPage;
 

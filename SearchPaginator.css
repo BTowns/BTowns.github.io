@@ -1,0 +1,35 @@
+.paginatorBar{
+    width: 30px;
+    max-width: 100%;
+    background-color: #010409;
+    color:#c9d1d9;
+
+    padding: 5px 12px;
+    font-size: 14px;
+    line-height: 20px;
+    vertical-align: middle;
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    box-shadow: 0 0 transparent;
+}
+
+.arrow {
+    border: solid #30363d;
+    border-width: 0 3px 3px 0;
+    display: inline-block;
+    padding: 3px;
+    cursor: pointer;
+    margin: 0 8px 0 8px;
+}
+
+.right {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+}
+
+.left {
+    transform: rotate(135deg);
+    -webkit-transform: rotate(135deg);
+}

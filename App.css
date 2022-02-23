@@ -11,9 +11,8 @@ span{
 }
 
 .textBar{
-    width: 340px;
+    width: 250px;
     max-width: 100%;
-    margin-right: 5px;
     background-color: #010409;
     color:#c9d1d9;
 
@@ -27,15 +26,19 @@ span{
     border-radius: 6px;
     box-shadow: 0 0 transparent;
 }
+.textBar.paginator{
+    width: 30px;
+}
 
 .searchResults {
-    margin-left: 380px;
-    width: 50%;
+    margin-left: 290px;
+    width: 30%;
     padding: 10px;
 }
 
 .searchPane{
     position: fixed;
+    margin: 8px 0 8px 8px;
 }
 
 ul {
@@ -53,4 +56,26 @@ li{
     border-radius: 6px;
     box-shadow: 0 0 transparent;
     padding-left: 8px;
+    max-width: 230px;
+    overflow: hidden;
 }
+
+
+.arrow {
+    border: solid #30363d;
+    border-width: 0 3px 3px 0;
+    display: inline-block;
+    padding: 3px;
+    cursor: pointer;
+    margin: 0 8px 0 8px;
+  }
+  
+  .right {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+  }
+  
+  .left {
+    transform: rotate(135deg);
+    -webkit-transform: rotate(135deg);
+  }

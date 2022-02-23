@@ -14,6 +14,8 @@ class SearchBody extends React.Component {
         super(props);
         this.state = {
             searchText: '',
+            searchOrder: '+sort:followers-desc',
+            searchPage: 1,
             authText: '',
             searchResults : [],
             searchDebounceTimer: null,
@@ -23,6 +25,7 @@ class SearchBody extends React.Component {
         this.handleSearch = this.handleSearch.bind(this);
         this.handleAuthUpdate = this.handleAuthUpdate.bind(this);
         this.searchRequest = this.searchRequest.bind(this);
+        this.handlePagination = this.handlePagination.bind(this);
         this.handlePrevSearch = this.handlePrevSearch.bind(this);
 
         this.octokit = new Octokit();
@@ -40,15 +43,20 @@ class SearchBody extends React.Component {
     }
 
     async searchRequest( ){
+
         if( this.state.searchText === '' ) return; 
+
         await this.octokit.request('GET /search/users', {
-            q: this.state.searchText +'sort:followers-desc'
+
+            q: this.state.searchText + this.state.searchOrder,
+            page: this.state.searchPage
+
         }).then( result =>{ 
             
             if( !this.state.previousSearches.includes( this.state.searchText ) ){
                 this.setState({
                     searchResults : result.data.items,
-                    previousSearches : [...this.state.previousSearches, this.state.searchText]
+                    previousSearches : [...this.state.previousSearches, this.state.searchText],
                 });
             }
             else{
@@ -68,6 +76,30 @@ class SearchBody extends React.Component {
         this.octokit.auth = authText;
     }
 
+    handlePagination( paginatorTarget ){
+
+        console.log(paginatorTarget);
+
+        let pageVal = this.state.searchPage;
+
+        if( paginatorTarget.className.includes('right') ){
+            pageVal++;
+        }
+        else if( paginatorTarget.className.includes('left') ){
+            pageVal--;
+            if( pageVal <= 0 ) pageVal = 1;
+        }
+        else{
+            pageVal = paginatorTarget.value;
+        }
+
+        this.setState({
+            searchPage: pageVal
+        });
+
+        if( pageVal > 0 && this.state.searchText != '' ) this.handleSearch( this.state.searchText, 100 );
+    }
+
     handlePrevSearch( prevText ){
         this.handleSearch( prevText, 100 );
     }
@@ -80,6 +112,8 @@ class SearchBody extends React.Component {
                     onAuthUpdate={this.handleAuthUpdate} 
                     searchText={this.state.searchText} 
                     onSearch={this.handleSearch} 
+                    searchPage={this.state.searchPage}
+                    onPaginate={this.handlePagination}
                     previousSearches={this.state.previousSearches}
                     onPrevSearch={this.handlePrevSearch}
                 />
@@ -97,6 +131,8 @@ class SearchPane extends React.Component {
                 <AuthBar authText={this.props.authText} onAuthUpdate={this.props.onAuthUpdate} />
                 <br/><br/>
                 <SearchBar searchText={this.props.searchText} onSearch={this.props.onSearch} />
+                <br />
+                <SearchPaginator searchPage={this.props.searchPage} onPaginate={this.props.onPaginate} />
                 <br />
                 <PrevSearches previousSearches={this.props.previousSearches} onPrevSearch={this.props.onPrevSearch} />
             </div>
@@ -119,15 +155,14 @@ class AuthBar extends React.Component {
         return (
             <div>
                 <span>Generate GH Auth Token To </span> <br /> <span> Increase API Rate Limit</span> <a href='https://github.com/settings/tokens/new?scopes=read:user' target="_blank" rel="noreferrer noopener"> Here </a>
-                <form>
-                    <input
+                <br />
+                <input
                     type="text"
                     className='textBar'
                     placeholder="Enter GH OAuth Token"
                     value={this.props.authText}
                     onChange={this.handleAuthUpdate}
-                    />
-                </form>
+                />
             </div>
         );
     }
@@ -145,15 +180,43 @@ class SearchBar extends React.Component {
   
     render() {
         return (
-            <form>
+            <div>
+                <span>Search GH Users:</span>
+                <br />
                 <input
-                type="text"
-                className='textBar'
-                placeholder="Search For User"
-                value={this.props.searchText}
-                onChange={this.handleSearch}
+                    type="text"
+                    className='textBar'
+                    placeholder="Search For User"
+                    value={this.props.searchText}
+                    onChange={this.handleSearch}
                 />
-            </form>
+            </div>
+        );
+    }
+}
+
+class SearchPaginator extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handlePagination = this.handlePagination.bind(this);
+    }
+    
+    handlePagination(e) {
+        this.props.onPaginate(e.target);
+    }
+  
+    render() {
+        return (
+            <div>
+                <i className='arrow left' onClick={this.handlePagination}></i>
+                <input
+                    type="text"
+                    className='textBar paginator'
+                    value={this.props.searchPage}
+                    onChange={this.handlePagination}
+                />
+                <i className='arrow right'onClick={this.handlePagination}></i>
+            </div>
         );
     }
 }

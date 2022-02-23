@@ -15,3 +15,6 @@ download all js and css files from this repo, place them into the folder generat
 ```
 npm start
 ```
+
+
+The search functions work without generating an auth token, however you will be limited in how many searches you can perform in a time window.  A link to generate your auth token is provided on the app page, as well as here: https://github.com/settings/tokens/new?scopes=read:user
